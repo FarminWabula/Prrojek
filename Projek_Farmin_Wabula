@@ -1,0 +1,251 @@
+<a href="https://colab.research.google.com/github/haekali/Datamining/blob/main/haekal.ipynb" target="_parent"><img src="https://colab.research.google.com/assets/colab-badge.svg" alt="Open In Colab"/></a>
+
+
+!pip install -q kaggle
+!mkdir -p ~/.kaggle
+!cp kaggle.json ~/.kaggle/
+!chmod 600 ~/.kaggle/kaggle.json #fungsi untuk memberikan izin akses file
+!kaggle datasets download -d akshaydattatraykhare/diabetes-dataset
+import zipfile
+
+with zipfile.ZipFile('diabetes-dataset.zip', 'r') as zip_ref:
+    zip_ref.extractall('/content/')
+import zipfile
+
+with zipfile.ZipFile('diabetes-dataset.zip', 'r') as zip_ref:
+    zip_ref.extractall('/content/')
+
+2.import library
+
+import numpy as np
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings('ignore')
+
+from sklearn.metrics import confusion_matrix, accuracy_score, classification_report
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
+Load and Display Data Set
+df = pd.read_csv('/content/diabetes.csv')
+display(df.head(2))  #display first record of data
+display(df.tail(2))  #display last 4 rrecord of data
+display(df.sample(4))  #display randomly any number of record data
+3.1 Thevshape of the dataset
+#number of rows and colums
+df.shape
+3.2 List types of all columns
+df.dtypes
+3.3 Into of the datset
+df.info
+3.4 Summary of the dataset
+df.describe()
+4.1 Drp the duplicate
+#check the shape before drop duplicate
+df.shape
+df=df.drop_duplicates()
+#check the shape after drop the duplicate
+df.shape
+4.2 check the null value
+#check of null values,
+#check the missing value in any column,
+#display number of null value in every column in dataset.
+df.isnull().sum()
+
+df.columns
+check the no. of zero value in dataset
+print ('No of zero value in SkinThickness', df[df['SkinThickness']==0].shape[0])
+df.isnull().sum()
+df.columns
+print ('No of zero value in SkinThickness', df[df['SkinThickness']==0].shape[0])
+print("- No of zero value in Glucose: ", df[df["Glucose"] == 0].shape[0])
+print("- No of zero value in BloodPressure: ", df[df["BloodPressure"] == 0].shape[0])
+print("- No of zero value in SkinThickness: ", df[df["SkinThickness"] == 0].shape[0])
+print("- No of zero value in Insulin: ", df[df["Insulin"] == 0].shape[0])
+print("- No of zero value in BMI: ", df[df["BMI"] == 0].shape[0])
+df["Glucose"] = df["Glucose"].replace(0, df["Glucose"].mean())
+print("- No of zero value in Glucose: ", df[df["Glucose"] == 0].shape[0])
+df["BloodPressure"] = df["BloodPressure"].replace(0, df["BloodPressure"].mean())
+print("- No of zero value in BloodPressure: ", df[df["BloodPressure"] == 0].shape[0])
+df["SkinThickness"] = df["SkinThickness"].replace(0, df["SkinThickness"].mean())
+print("- No of zero value in SkinThickness: ", df[df["SkinThickness"] == 0].shape[0])
+df["Insulin"] = df["Insulin"].replace(0, df["Insulin"].mean())
+print("- No of zero value in Insulin: ", df[df["Insulin"] == 0].shape[0])
+df["BMI"] = df["BMI"].replace(0, df["BMI"].mean())
+print("- No of zero value in BMI: ", df[df["BMI"] == 0].shape[0])
+df.describe();
+f,ax = plt.subplots(1, 2, figsize = (10, 5))
+df['Outcome'].value_counts().plot.pie(explode = [0, 0.1],autopct = '%1.1f%%',ax = ax[0],shadow = True)
+ax[0].set_title('Outcome')
+ax[0].set_ylabel("")
+sns.countplot(x = 'Outcome', data = df, ax = ax[1])
+ax[1].set_title('Outcome')
+N, P = df['Outcome'].value_counts()
+print('- Negative(0) : ', N)
+print('- Positive(1) : ', P)
+plt.grid()
+plt.show()
+df.hist(bins = 10, figsize = (10, 10))
+plt.show()
+from pandas.plotting import scatter_matrix
+scatter_matrix(df, figsize = (20, 20))
+import seaborn as sns
+corrmat = df.corr()
+top_corr_features = corrmat.index
+plt.figure(figsize = (10, 10))
+g = sns.heatmap(df[top_corr_features].corr(), annot = True, cmap = "viridis")
+target_name = 'Outcome'
+y = df[target_name]
+x = df.drop(target_name, axis=1)
+
+x.head()
+y.head()
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+scaler.fit(x)
+SSX = scaler.transform(x)
+from sklearn.model_selection import train_test_split
+x_train, x_test, y_train, y_test = train_test_split(SSX, y, test_size=0.2, random_state=7)
+
+x_train.shape, y_train.shape
+
+x_test.shape, y_test.shape
+from sklearn.svm import SVC
+sv=SVC()
+sv.fit(x_train, y_train)
+sv_pred=sv.predict(x_test)
+
+sv_pred.shape
+from sklearn.metrics import accuracy_score
+print("Train Accuracy of SVM", sv.score(x_train, y_train)*100)
+print("Accuracy (test) score of SVM", sv.score(x_test, y_test)*100)
+print("Accuracy (test) score of SVM", accuracy_score(y_test, sv_pred)*100)
+from sklearn.metrics import classification_report, confusion_matrix
+cm=confusion_matrix(y_test,sv_pred)
+cm
+
+sns.heatmap(confusion_matrix(y_test, sv_pred),annot=True,fmt='d')
+
+print ('Classification Report of SVM: \n', classification_report(y_test,sv_pred,digits=4 ))
+
+TN = cm[0,0]
+FP = cm[0,1]
+FN = cm[1,0]
+TP = cm[1,1]
+
+TN, FP, FN, TP
+from sklearn.metrics import classification_report, confusion_matrix
+cm = confusion_matrix(y_test, sv_pred)
+cm
+
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, roc_auc_score, roc_curve
+cm=confusion_matrix(y_test, sv_pred)
+
+print('TN - True Negative {}'. format(cm[0,0]))
+print('FP - False Positive {}'. format(cm[0,1]))
+print('FN - False Negative {}'. format(cm[1,0]))
+print('TP - True Positive {}'. format(cm[1,1]))
+print('Accuracy Rate of SVM:{}'.format(np.divide(np.sum([cm[0,0],cm[1,1]]),np.sum(cm))*100))
+print('Misclassification Rate of SVM :{}'.format(np.divide(np.sum([cm[0,1],cm[1,0]]),np.sum(cm))*100))
+
+sns.heatmap(confusion_matrix(y_test, sv_pred),cmap='Blues', annot=True, fmt="d")
+from sklearn.metrics import classification_report, confusion_matrix
+cm=confusion_matrix(y_test,sv_pred)
+cm
+
+sns.heatmap(confusion_matrix(y_test, sv_pred),annot=True,fmt='d')
+
+print ('Classification Report of SVM: \n', classification_report(y_test,sv_pred,digits=4 ))
+
+TN = cm[0,0]
+FP = cm[0,1]
+FN = cm[1,0]
+TP = cm[1,1]
+
+TN, FP, FN, TP
+from sklearn.metrics import classification_report, confusion_matrix
+cm = confusion_matrix(y_test, sv_pred)
+cm
+
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, roc_auc_score, roc_curve
+cm=confusion_matrix(y_test, sv_pred)
+
+print('TN - True Negative {}'. format(cm[0,0]))
+print('FP - False Positive {}'. format(cm[0,1]))
+print('FN - False Negative {}'. format(cm[1,0]))
+print('TP - True Positive {}'. format(cm[1,1]))
+print('Accuracy Rate of SVM:{}'.format(np.divide(np.sum([cm[0,0],cm[1,1]]),np.sum(cm))*100))
+print('Misclassification Rate of SVM :{}'.format(np.divide(np.sum([cm[0,1],cm[1,0]]),np.sum(cm))*100))
+
+sns.heatmap(confusion_matrix(y_test, sv_pred),cmap='Blues', annot=True, fmt="d")
+
+from sklearn.metrics import classification_report, confusion_matrix
+cm = confusion_matrix(y_test, sv_pred)
+cm
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score, roc_auc_score, roc_curve
+cm=confusion_matrix(y_test, sv_pred)
+
+print('TN - True Negative {}'. format(cm[0,0]))
+print('FP - False Positive {}'. format(cm[0,1]))
+print('FN - False Negative {}'. format(cm[1,0]))
+print('TP - True Positive {}'. format(cm[1,1]))
+print('Accuracy Rate of SVM:{}'.format(np.divide(np.sum([cm[0,0],cm[1,1]]),np.sum(cm))*100))
+print('Misclassification Rate of SVM :{}'.format(np.divide(np.sum([cm[0,1],cm[1,0]]),np.sum(cm))*100))
+
+sns.heatmap(confusion_matrix(y_test, sv_pred),cmap='Blues', annot=True, fmt="d")
+
+print('Classification Report of SVM:\n', classification_report(y_test,sv_pred,digits=4))
+
+TN = cm[0,0]
+FP = cm[0,1]
+FN = cm[1,0]
+TP = cm[1,1]
+
+TN, FP, FN, TP
+TP,FP
+
+Precision=TP/(TP+FP)
+Precision
+
+Precision_score = TP/float(TP+FP)*100
+print('Precision Score : {0:0.4f}'.format(Precision_score))
+
+from sklearn.metrics import precision_score
+print("precision Score is:", precision_score(y_test,sv_pred)*100)
+print("Micro Average precision Score is:", precision_score(y_test, sv_pred, average='micro')*100)
+print("Macro Average precision Score is:", precision_score(y_test, sv_pred, average='macro')*100)
+print("Weighted Average precision Score is:", precision_score(y_test, sv_pred, average='weighted')*100)
+print("Precision Score on non weighted score is:", precision_score(y_test, sv_pred, average=None)*100)
+
+recall_score = TP/float(TP + FN)*100
+print ('recall_score',recall_score)
+
+TP, FN
+
+recall_score = TP/FN
+
+from sklearn.metrics import recall_score
+print('Recall or Sensitivity_score :', recall_score(y_test,sv_pred)*100)
+
+print("Micro Average Recall Score is :", recall_score(y_test,sv_pred,average='micro')*100)
+print("Macro Average Recall Score is :", recall_score(y_test,sv_pred,average='macro')*100)
+print("Weighted Average Recall Score is :", recall_score(y_test,sv_pred,average='weighted')*100)
+print("Recall Score on Non weighted score is:", recall_score(y_test,sv_pred,average=None)*100)
+
+print ('Classification Report of Neural Network: \n',classification_report(y_test,sv_pred,digits=4))
+
+#False
+FPR = FP/float(FP+TN)*100
+print('False Positive Rate :{0:0.4f}' .format(FPR))
+
+FP,TN
+
+14/(14+83)
+specificity = TN / (TN + FP)*100
+print('specificity :{0:0.4f}' .format(specificity))
